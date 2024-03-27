@@ -16,6 +16,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -69,6 +70,7 @@ public class AuthService {
                 .role(ERole.USER)
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
+                .tickets(new HashSet<>())
                 .build());
     }
 
