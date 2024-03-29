@@ -2,14 +2,12 @@ package com.playfieldsync.entities.complex;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Set;
 
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -23,13 +21,13 @@ public class ComplexContactInfo {
     private String email;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "contactInfo")
-    private Set<ComplexPhoneNumber> complexPhoneNumberSet;
+    private Set<ComplexPhoneNumber> phoneNumbers;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "contactInfo")
-    private ComplexAddress complexAddress;
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "address_id")
+    private ComplexAddress address;
 
-    @OneToOne
-    @JoinColumn(name = "complex_id")
+    @OneToOne(mappedBy = "contactInfo")
     @JsonIgnore
     private Complex complex;
 }

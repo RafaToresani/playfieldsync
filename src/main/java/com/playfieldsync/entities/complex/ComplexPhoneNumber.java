@@ -2,12 +2,10 @@ package com.playfieldsync.entities.complex;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,7 +17,7 @@ public class ComplexPhoneNumber {
     private Long id;
     private String number;
     @ManyToOne
-    @JoinColumn(name = "complex_contact_info_id")
+    @JoinColumn(name = "contact_info_id")
     @JsonIgnore
     private ComplexContactInfo contactInfo;
 }

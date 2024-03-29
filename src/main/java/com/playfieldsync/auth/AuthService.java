@@ -45,7 +45,7 @@ public class AuthService {
         if(repository.existsByUsername(request.getUsername())) throw new ResourceAlreadyExistException("usuario", request.getUsername());
         if(userContactInfoRepository.existsByDni(request.getDni())) throw new ResourceAlreadyExistException("dni", request.getDni());
         User user = createUser(request);
-        String token = jwtService.getToken(user);
+        String token = jwtService.getToken(user, user.getAuthorities());
 
         return Optional.of(AuthResponse.builder()
                 .token(token)
@@ -75,12 +75,8 @@ public class AuthService {
     }
 
     private UserContactInfo createContactInfo(RegisterRequest request, UserAddress userAddress) {
-        Set<UserPhoneNumber> phoneNumbers = request.getPhoneNumbers().stream()
-                .map(phoneNumber -> UserPhoneNumber.builder().phoneNumber(phoneNumber).build())
-                .map(phoneNumberRepository::save)
-                .collect(Collectors.toSet());
 
-        return userContactInfoRepository.save(UserContactInfo
+        UserContactInfo contactInfo = userContactInfoRepository.save(UserContactInfo
                 .builder()
                 .address(userAddress)
                 .email(request.getEmail())
@@ -88,8 +84,22 @@ public class AuthService {
                 .lastName(request.getLastName())
                 .dni(request.getDni())
                 .birthdate(request.getBirthdate())
-                .phoneNumbers(phoneNumbers)
+                .phoneNumbers(new HashSet<>())
                 .build());
+
+        for(String phone : request.getPhoneNumbers()){
+            contactInfo.getPhoneNumbers().add(
+                    phoneNumberRepository.save(
+                            UserPhoneNumber.builder()
+                                    .phoneNumber(phone)
+                                    .contactInfo(contactInfo)
+                                    .build()
+                    )
+            );
+        }
+
+
+        return userContactInfoRepository.save(contactInfo);
     }
 
     private UserAddress createUserAddress(RegisterRequest request) {
@@ -106,7 +116,7 @@ public class AuthService {
     public Optional<AuthResponse> login(LoginRequest request) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
         User user = repository.findByUsername(request.getUsername()).orElseThrow();
-        String token = jwtService.getToken(user);
+        String token = jwtService.getToken(user, user.getAuthorities());
 
         return Optional.of(AuthResponse.builder()
                 .userId(user.getId())

@@ -2,12 +2,10 @@ package com.playfieldsync.entities.complex;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -24,8 +22,7 @@ public class ComplexAddress {
     private String street;
     private String streetNumber;
 
-    @OneToOne
-    @JoinColumn(name = "complex_contact_info_id")
+    @OneToOne(mappedBy = "address")
     @JsonIgnore
     private ComplexContactInfo contactInfo;
 }

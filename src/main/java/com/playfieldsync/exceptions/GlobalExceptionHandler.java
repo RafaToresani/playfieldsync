@@ -1,9 +1,10 @@
 package com.playfieldsync.exceptions;
 
-import com.playfieldsync.dto.ApiResponse;
+import com.playfieldsync.dto.responses.ErrorResponse;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -15,8 +16,8 @@ import java.util.Date;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<ApiResponse> handlerBadRequestException(BadRequestException ex, WebRequest webRequest){
-        ApiResponse response = ApiResponse
+    public ResponseEntity<ErrorResponse> handlerBadRequestException(BadRequestException ex, WebRequest webRequest){
+        ErrorResponse response = ErrorResponse
                 .builder()
                 .date(new Date())
                 .message(ex.getMessage())
@@ -26,8 +27,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ResourceAlreadyExistException.class)
-    public ResponseEntity<ApiResponse> handlerResourceAlreadyExistException(ResourceAlreadyExistException ex, WebRequest webRequest){
-        ApiResponse response = ApiResponse
+    public ResponseEntity<ErrorResponse> handlerResourceAlreadyExistException(ResourceAlreadyExistException ex, WebRequest webRequest){
+        ErrorResponse response = ErrorResponse
                 .builder()
                 .date(new Date())
                 .message(ex.getMessage())
@@ -38,13 +39,35 @@ public class GlobalExceptionHandler {
 
 
     @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<ApiResponse> handlerAuthenticationException(AuthenticationException ex, WebRequest webRequest) {
-        ApiResponse apiResponse = ApiResponse
+    public ResponseEntity<ErrorResponse> handlerAuthenticationException(AuthenticationException ex, WebRequest webRequest) {
+        ErrorResponse errorResponse = ErrorResponse
                 .builder()
                 .date(new Date())
                 .message("Credenciales invalidas. Ingrese un nombre de usuario y contraseña válidos.")
                 .url(webRequest.getDescription(false).replace("uri=", ""))
                 .build();
-        return new ResponseEntity<>(apiResponse, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handlerResourceNotFoundException(ResourceNotFoundException ex, WebRequest webRequest){
+        ErrorResponse  errorResponse = ErrorResponse
+                .builder()
+                .date(new Date())
+                .message(ex.getMessage())
+                .url(webRequest.getDescription(false).replace("uri=", ""))
+                .build();
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handlerAccessDeniedException(AccessDeniedException ex, WebRequest webRequest){
+        ErrorResponse  errorResponse = ErrorResponse
+                .builder()
+                .date(new Date())
+                .message("No tiene permisos para acceder a este recurso.")
+                .url(webRequest.getDescription(false).replace("uri=", ""))
+                .build();
+        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
     }
 }
