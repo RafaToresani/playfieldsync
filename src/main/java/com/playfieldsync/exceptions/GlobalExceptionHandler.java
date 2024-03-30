@@ -1,6 +1,7 @@
 package com.playfieldsync.exceptions;
 
 import com.playfieldsync.dto.responses.ErrorResponse;
+import io.jsonwebtoken.ExpiredJwtException;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -66,6 +67,17 @@ public class GlobalExceptionHandler {
                 .builder()
                 .date(new Date())
                 .message("No tiene permisos para acceder a este recurso.")
+                .url(webRequest.getDescription(false).replace("uri=", ""))
+                .build();
+        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<ErrorResponse> handlerExpiredJwtException(ExpiredJwtException ex, WebRequest webRequest){
+        ErrorResponse  errorResponse = ErrorResponse
+                .builder()
+                .date(new Date())
+                .message("Token expirado.")
                 .url(webRequest.getDescription(false).replace("uri=", ""))
                 .build();
         return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);

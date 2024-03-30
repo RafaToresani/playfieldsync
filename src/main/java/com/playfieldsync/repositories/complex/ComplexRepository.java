@@ -8,4 +8,5 @@ import org.springframework.stereotype.Repository;
 public interface ComplexRepository extends JpaRepository<Complex, Long> {
 
     Boolean existsByName(String name);
+    boolean existsById(Long id);
 }

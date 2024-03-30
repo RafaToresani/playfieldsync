@@ -28,6 +28,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/auth/**").permitAll();
                     auth.requestMatchers("/api/v1/complexes/**").hasAuthority("ADMIN");
+                    auth.requestMatchers("/api/v1/fields/**").hasAnyAuthority("ADMIN", "MANAGER");
                     auth.anyRequest().authenticated();
                 })
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) /*Especifica que no utilice las políticas de creacion de sesiones las sessiones*/

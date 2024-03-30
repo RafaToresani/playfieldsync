@@ -20,7 +20,10 @@ public class Field {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String title;
+    @Column(name = "description", length = 255)
     private String description;
+    @Enumerated(EnumType.STRING)
+    @Column(length = 255)
     private FieldSport fieldSport;
     private Double price;
     private Boolean isActive;
@@ -32,4 +35,8 @@ public class Field {
     @JoinColumn(name = "complex_id")
     @JsonIgnore
     private Complex complex;
+
+    public void toggleStatus(){
+        this.isActive = !this.isActive;
+    }
 }
