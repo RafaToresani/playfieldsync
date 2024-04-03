@@ -13,10 +13,16 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public class ResourceAlreadyExistException extends RuntimeException{
     private String resourceName;
     private String resourceValue;
+    private String message;
 
     public ResourceAlreadyExistException(String resourceName, String resourceValue){
         super("El " + resourceName + " '" + resourceValue + "'"+ " ya está en uso.");
         this.resourceName=resourceName;
         this.resourceValue=resourceValue;
+    }
+
+    public ResourceAlreadyExistException(String message){
+        super(message);
+        this.message = message;
     }
 }

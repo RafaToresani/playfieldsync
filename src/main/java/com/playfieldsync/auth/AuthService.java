@@ -70,7 +70,7 @@ public class AuthService {
                 .role(ERole.USER)
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .tickets(new HashSet<>())
+                .bookings(new HashSet<>())
                 .build());
     }
 

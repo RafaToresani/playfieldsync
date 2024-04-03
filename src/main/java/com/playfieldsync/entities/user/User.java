@@ -1,5 +1,6 @@
 package com.playfieldsync.entities.user;
 
+import com.playfieldsync.entities.booking.Booking;
 import com.playfieldsync.entities.ticket.Ticket;
 import jakarta.persistence.*;
 import lombok.*;
@@ -30,8 +31,11 @@ public class User implements UserDetails {
     @JoinColumn(name = "contact_info_id")
     private UserContactInfo contactInfo;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "user")
-    private Set<Ticket> tickets;
+/*    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "user")
+    private Set<Ticket> tickets;*/
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "user")
+    private Set<Booking> bookings;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

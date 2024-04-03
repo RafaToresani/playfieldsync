@@ -28,7 +28,7 @@ public class Field {
     private Double price;
     private Boolean isActive;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "field")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "field")
     private Set<Booking> bookings;
 
     @ManyToOne
