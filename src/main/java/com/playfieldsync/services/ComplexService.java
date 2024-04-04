@@ -1,15 +1,18 @@
 package com.playfieldsync.services;
 
 import com.playfieldsync.dto.requests.ComplexRequest;
+import com.playfieldsync.dto.responses.ComplexResponse;
 import com.playfieldsync.entities.complex.Complex;
 import com.playfieldsync.entities.complex.ComplexAddress;
 import com.playfieldsync.entities.complex.ComplexContactInfo;
 import com.playfieldsync.entities.complex.ComplexPhoneNumber;
 import com.playfieldsync.exceptions.ResourceAlreadyExistException;
+import com.playfieldsync.exceptions.ResourceNotFoundException;
 import com.playfieldsync.repositories.complex.ComplexAddressRepository;
 import com.playfieldsync.repositories.complex.ComplexContactInfoRepository;
 import com.playfieldsync.repositories.complex.ComplexPhoneNumberRepository;
 import com.playfieldsync.repositories.complex.ComplexRepository;
+import com.playfieldsync.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,19 +34,17 @@ public class ComplexService {
     /*
     Crea y retorna nuevo complejo.
     */
-    public Optional<Complex> create(ComplexRequest request) {
+    public ComplexResponse create(ComplexRequest request) {
         /*Verifica si el nombre o correo electrónico ya está en uso.*/
         if(complexRepository.existsByName(request.getName())) throw new ResourceAlreadyExistException("nombre", request.getName());
         if(contactInfoRepository.existsByEmail(request.getEmail())) throw new ResourceAlreadyExistException("email", request.getEmail());
-        try {
-            ComplexAddress complexAddress = createComplexAddress(request);
-            ComplexContactInfo contactInfo = createContactInfo(request, complexAddress);
-            Complex complex = createComplexEntity(request, contactInfo);
-            return Optional.of(complex);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Optional.empty(); // Manejar el caso en el que ocurra algún error
-        }
+
+        ComplexAddress complexAddress = createComplexAddress(request);
+        ComplexContactInfo contactInfo = createContactInfo(request, complexAddress);
+        Complex complex = createComplexEntity(request, contactInfo);
+
+        return Utils.parseComplexToResponse(complex);
+
     }
 
     private Complex createComplexEntity(ComplexRequest request, ComplexContactInfo contactInfo){
@@ -90,14 +91,18 @@ public class ComplexService {
     // =============================== GET ===============================
 
     /*Busca y retorna una lista con todos los complejos*/
-    public List<Complex> findAll(){
+    public List<ComplexResponse> findAll(){
         List<Complex> complexList = this.complexRepository.findAll();
-        return complexList;
+        if(complexList.isEmpty()) throw new ResourceNotFoundException("complejo");
+
+        return Utils.parseComplexListToResponseList(complexList);
     }
 
     /*Busca y retorna un complejo por id*/
-    public Optional<Complex> findById(Long id) {
-        return this.complexRepository.findById(id);
+    public ComplexResponse findById(Long id) {
+        Optional<Complex> complex = complexRepository.findById(id);
+        if(complex.isEmpty()) throw new ResourceNotFoundException("complejo", "id", id.toString());
+        return Utils.parseComplexToResponse(complex.get());
     }
 
     // =============================== DELETE ===============================
@@ -107,9 +112,9 @@ public class ComplexService {
 
     // =============================== PUT ===============================
     /*Actualiza un complejo en base a su id */
-    public Optional<Complex> updateById(Long id, ComplexRequest request){
+    public ComplexResponse updateById(Long id, ComplexRequest request){
         Optional<Complex> optComplex = this.complexRepository.findById(id);
-        if(optComplex.isEmpty()) return Optional.empty();
+        if(optComplex.isEmpty()) throw new ResourceNotFoundException("complejo", "id", id.toString());
 
         Complex complex = optComplex.get();
         complex.setName(request.getName());
@@ -131,8 +136,7 @@ public class ComplexService {
             String newPhoneNumber = newPhoneNumberIterator.next();
             phoneNumber.setNumber(newPhoneNumber);
         }
-        return Optional.of(this.complexRepository.save(complex));
+        complex = this.complexRepository.save(complex);
+        return Utils.parseComplexToResponse(complex);
     }
-
-
 }

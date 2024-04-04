@@ -2,18 +2,21 @@ package com.playfieldsync.services;
 
 import com.playfieldsync.dto.requests.ComplexRequest;
 import com.playfieldsync.dto.requests.FieldRequest;
+import com.playfieldsync.dto.responses.FieldResponse;
 import com.playfieldsync.entities.complex.Complex;
 import com.playfieldsync.entities.field.Field;
 import com.playfieldsync.entities.field.FieldSport;
 import com.playfieldsync.exceptions.ResourceNotFoundException;
 import com.playfieldsync.repositories.complex.ComplexRepository;
 import com.playfieldsync.repositories.field.FieldRepository;
+import com.playfieldsync.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.prefs.BackingStoreException;
 
 @Service
 public class FieldService {
@@ -25,7 +28,7 @@ public class FieldService {
 
 
     // =============================== POST ===============================
-    public Optional<Field> create(Long complexId, FieldRequest request) {
+    public FieldResponse create(Long complexId, FieldRequest request) {
         Optional<Complex> complex = complexRepository.findById(complexId);
         if(complex.isEmpty()) throw new ResourceNotFoundException("complejo", "id", complexId.toString());
 
@@ -39,55 +42,80 @@ public class FieldService {
                 .fieldSport(FieldSport.valueOf(request.getFieldSport()))
                 .complex(complex.get())
                 .build();
-        return Optional.of(fieldRepository.save(field));
+        field = fieldRepository.save(field);
+        return Utils.parseFieldToResponse(field);
     }
 
     // =============================== GET ===============================
-    public List<Field> findAll() {
-        return this.fieldRepository.findAll();
+
+    /*
+    * Busca y retorna todos los campos*/
+    public List<FieldResponse> findAll() {
+        List<Field> fields = fieldRepository.findAll();
+        if(fields.isEmpty()) throw new ResourceNotFoundException("campo");
+        return Utils.parseFieldListToResponseList(fields);
     }
 
-    public List<Field> findAllByComplex(Long complexId) {
-       return this.fieldRepository.findAllByComplexId(complexId);
+    /*
+    * Busca y retorna todos los campos de un complejo*/
+    public List<FieldResponse> findAllByComplex(Long complexId) {
+        List<Field> fields = fieldRepository.findAllByComplexId(complexId);
+        if(fields.isEmpty()) throw new ResourceNotFoundException("campo");
+        return Utils.parseFieldListToResponseList(fields);
     }
 
-    public Optional<Field> findById(Long id) {
-        return this.fieldRepository.findById(id);
+    /*
+    * Busca y retorna un campo por id*/
+    public FieldResponse findById(Long id) {
+        Optional<Field> field= this.fieldRepository.findById(id);
+        if(field.isEmpty()) throw new ResourceNotFoundException("campo", "id", id.toString());
+        return Utils.parseFieldToResponse(field.get());
     }
 
-    public List<Field> findByStatus(Boolean parsedStatus) {
-        return this.fieldRepository.findAllByIsActive(parsedStatus);
+    /*
+    * Busca y retorna todos los campos en base a su estado.*/
+    public List<FieldResponse> findByStatus(Boolean parsedStatus) {
+        List<Field> fields = this.fieldRepository.findAllByIsActive(parsedStatus);
+        if(fields.isEmpty()) throw new ResourceNotFoundException("campo");
+        return Utils.parseFieldListToResponseList(fields);
     }
 
     // =========================== PATCH ===========================
 
-    public Optional<Field> toggleStatus(Long id) {
+    /*
+    * Cambia el estado del campo a su negativo.*/
+    public FieldResponse toggleStatus(Long id) {
         Optional<Field> field = this.fieldRepository.findById(id);
-        if(field.isEmpty()) return Optional.empty();
+        if(field.isEmpty()) throw new ResourceNotFoundException("campo", "id", id.toString());
         field.get().toggleStatus();
-        return Optional.of(this.fieldRepository.save(field.get()));
+        Field savedField = this.fieldRepository.save(field.get());
+        return Utils.parseFieldToResponse(savedField);
     }
 
-
-    public Optional<Field> changePrice(Long id, Double newprice) {
+    /*
+     * Cambia el precio de un campo específico*/
+    public FieldResponse changePrice(Long id, Double newprice) {
         Optional<Field> field = this.fieldRepository.findById(id);
-        if(field.isEmpty()) return Optional.empty();
+        if(field.isEmpty()) throw new ResourceNotFoundException("campo", "id", id.toString());
+
         field.get().setPrice(newprice);
-        return Optional.of(this.fieldRepository.save(field.get()));
+        Field savedField = this.fieldRepository.save(field.get());
+        return Utils.parseFieldToResponse(savedField);
     }
 
     // =========================== PUT ===========================
-    public Optional<Field> update(Long id, FieldRequest request) {
+
+    public FieldResponse update(Long id, FieldRequest request) {
         Optional<Field> field = this.fieldRepository.findById(id);
-        if(field.isEmpty()) return Optional.empty();
+        if(field.isEmpty()) throw new ResourceNotFoundException("campo", "id", id.toString());
 
         field.get().setTitle(request.getTitle());
         field.get().setDescription(request.getDescription());
         field.get().setPrice(request.getPrice());
         field.get().setFieldSport(FieldSport.valueOf(request.getFieldSport()));
 
-        this.fieldRepository.save(field.get());
-        return Optional.of(field.get());
+        Field savedField = this.fieldRepository.save(field.get());
+        return Utils.parseFieldToResponse(savedField);
     }
 
     // =========================== DELETE ===========================

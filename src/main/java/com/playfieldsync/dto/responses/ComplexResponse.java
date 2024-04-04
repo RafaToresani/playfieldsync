@@ -1,18 +1,19 @@
-package com.playfieldsync.dto;
+package com.playfieldsync.dto.responses;
 
+import com.playfieldsync.dto.responses.FieldResponse;
 import com.playfieldsync.entities.complex.ComplexPhoneNumber;
-import com.playfieldsync.entities.field.Field;
 import lombok.*;
 
 import java.util.List;
+import java.util.Set;
 
 @Builder
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ComplexDTO {
-    private String id;
+public class ComplexResponse {
+    private Long id;
     private String name;
     private String email;
     private String country;
@@ -21,6 +22,6 @@ public class ComplexDTO {
     private String postalCode;
     private String street;
     private String streetNumber;
-    private List<ComplexPhoneNumber> phoneNumbers;
-    private List<Field> listField;
+    private Set<ComplexPhoneNumber> phoneNumbers;
+    private List<FieldResponse> fields;
 }

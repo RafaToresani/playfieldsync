@@ -2,7 +2,6 @@ package com.playfieldsync.entities.booking;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.playfieldsync.entities.field.Field;
-import com.playfieldsync.entities.ticket.Ticket;
 import com.playfieldsync.entities.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -40,8 +39,4 @@ public class Booking {
     @JsonIgnore
     private User user;
 
-/*    @OneToOne
-    @JoinColumn(name = "ticket_id")
-    @JsonIgnore
-    private Ticket ticket;*/
 }

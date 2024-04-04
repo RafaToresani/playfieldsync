@@ -1,11 +1,13 @@
 package com.playfieldsync.controllers;
 
+import com.playfieldsync.dto.responses.ComplexResponse;
 import com.playfieldsync.dto.responses.ErrorResponse;
 import com.playfieldsync.dto.requests.ComplexRequest;
 import com.playfieldsync.dto.responses.SuccessResponse;
 import com.playfieldsync.entities.complex.Complex;
 import com.playfieldsync.exceptions.ResourceNotFoundException;
 import com.playfieldsync.services.ComplexService;
+import com.playfieldsync.utils.Utils;
 import jakarta.validation.Valid;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,8 +39,7 @@ public class ComplexController {
         System.out.println(request.getCity());
         if(!bindingResult.hasErrors()) throw new BadRequestException(bindingResult.getFieldError().getDefaultMessage());
 
-        Optional<Complex> complex = complexService.create(request);
-        if(complex.isEmpty()) throw new BadRequestException("Algo salió mal.");
+        ComplexResponse complex = complexService.create(request);
 
         return new ResponseEntity<>(SuccessResponse
                 .builder()
@@ -54,8 +55,7 @@ public class ComplexController {
     * Busca y retorna una lista con todos los complejos*/
     @GetMapping
     public ResponseEntity<SuccessResponse> findAll(){
-        List<Complex> complexList = this.complexService.findAll();
-        if(complexList.isEmpty()) throw new ResourceNotFoundException("complejo");
+        List<ComplexResponse> complexList = this.complexService.findAll();
         return new ResponseEntity<>(SuccessResponse
                 .builder()
                 .statusCode("200")
@@ -69,15 +69,13 @@ public class ComplexController {
     * Busca y retorna un complejo por id*/
     @GetMapping("/{id}")
     public ResponseEntity<SuccessResponse> findById(@PathVariable Long id) throws BadRequestException {
-        if(id<=0) throw new BadRequestException("ERROR. El id del complejo menor o igual a 0");
-        if(id==null) throw new BadRequestException("ERROR. El id del complejo no puede ser nulo");
-        Optional<Complex> complex = this.complexService.findById(id);
-        if(complex.isEmpty()) throw new ResourceNotFoundException("complejo", "id", id.toString());
+        Utils.checkId(id, "complejo");
+       ComplexResponse complex = this.complexService.findById(id);
         return new ResponseEntity<>(SuccessResponse
                 .builder()
                 .statusCode("200")
                 .url(this.url+"/"+id)
-                .object(complex.get())
+                .object(complex)
                 .message("Operación exitosa.")
                 .build(), HttpStatus.OK);
     }
@@ -87,8 +85,7 @@ public class ComplexController {
     /*Elimina un complejo por id*/
     @DeleteMapping("/{id}")
     public ResponseEntity<SuccessResponse> deleteById(@PathVariable Long id) throws BadRequestException {
-        if(id<=0) throw new BadRequestException("ERROR. El id del complejo menor o igual a 0");
-        if(id==null) throw new BadRequestException("ERROR. El id del complejo no puede ser nulo");
+        Utils.checkId(id, "complejo");
         this.complexService.deleteComplex(id);
         return new ResponseEntity<>(SuccessResponse.builder()
                 .build(), HttpStatus.NO_CONTENT);
@@ -98,10 +95,8 @@ public class ComplexController {
 
     @PutMapping("/{id}")
     public ResponseEntity<SuccessResponse> updateById(@PathVariable Long id, @RequestBody ComplexRequest request) throws BadRequestException {
-        if(id<=0) throw new BadRequestException("ERROR. El id del complejo menor o igual a 0");
-        if(id==null) throw new BadRequestException("ERROR. El id del complejo no puede ser nulo");
-        Optional<Complex> complex = this.complexService.updateById(id, request);
-        if(complex.isEmpty()) throw new ResourceNotFoundException("complejo", "id", id.toString());
+        Utils.checkId(id, "complejo");
+        ComplexResponse complex = this.complexService.updateById(id, request);
 
         return new ResponseEntity<>(SuccessResponse
                 .builder()

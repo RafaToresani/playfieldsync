@@ -22,6 +22,6 @@ public class Complex {
     @JoinColumn(name = "contact_info_id")
     private ComplexContactInfo contactInfo;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "complex")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "complex")
     private Set<Field> fields;
 }

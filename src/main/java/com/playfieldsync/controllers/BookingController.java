@@ -3,7 +3,6 @@ package com.playfieldsync.controllers;
 import com.playfieldsync.dto.requests.BookingRequest;
 import com.playfieldsync.dto.responses.BookingResponse;
 import com.playfieldsync.dto.responses.SuccessResponse;
-import com.playfieldsync.entities.booking.Booking;
 import com.playfieldsync.exceptions.ResourceNotFoundException;
 import com.playfieldsync.services.BookingService;
 import com.playfieldsync.utils.Utils;
